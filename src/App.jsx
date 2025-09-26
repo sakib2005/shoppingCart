@@ -7,24 +7,12 @@ import Checkout from "./components/Checkout";
 function App() {
   const [cart, setCart] = useState([]);
 
-  const getTotalPrice = () => {
-    return cart
-      .reduce((total, item) => total + item.price * item.quantity, 0)
-      .toFixed(2);
-  };
-
   return (
     <ChakraProvider>
       <Router>
         <Routes>
-          <Route
-            path="/"
-            element={<ProductList cart={cart} setCart={setCart} />}
-          />
-          <Route
-            path="/checkout"
-            element={<Checkout cart={cart} getTotalPrice={getTotalPrice} />}
-          />
+          <Route path="/" element={<ProductList cart={cart} setCart={setCart} />} />
+          <Route path="/checkout" element={<Checkout cart={cart} />} />
         </Routes>
       </Router>
     </ChakraProvider>
