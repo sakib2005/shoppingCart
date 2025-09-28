@@ -1,6 +1,5 @@
 import jsPDF from "jspdf";
 
-// 🎲 Enhanced customer info generator
 const CUSTOMER_DATA = {
   firstNames: ["Alice", "John", "Siti", "Rajesh", "Mei", "Daniel", "Fatimah", "Michael"],
   lastNames: ["Tan", "Lim", "Nurhaliza", "Kumar", "Ling", "Wong", "Ali", "Lee"],
@@ -19,7 +18,6 @@ class PDFGenerator {
     this.margin = 20;
   }
 
-  // 🎯 Text drawing with better positioning
   drawText(text, x, y, options = {}) {
     const {
       size = 12,
@@ -43,7 +41,6 @@ class PDFGenerator {
     }
   }
 
-  // 📊 Draw table with better formatting
   drawTable(headers, data, startY, columnWidths) {
     const rowHeight = 12;
     const headerHeight = 15;

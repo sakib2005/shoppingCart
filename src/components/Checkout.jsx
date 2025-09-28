@@ -35,7 +35,6 @@ const COLORS = [
   "#319795",
 ];
 
-// Custom legend with improved styling
 const RenderLegend = ({ payload }) => (
   <VStack align="start" spacing={2} p={3} bg="gray.50" borderRadius="md">
     {payload.map((entry, index) => (
@@ -69,7 +68,7 @@ const RenderCustomizedLabel = ({
     <text
       x={x}
       y={y}
-      fill="black" // changed to black
+      fill="black" 
       textAnchor="middle"
       dominantBaseline="central"
       fontSize="11"

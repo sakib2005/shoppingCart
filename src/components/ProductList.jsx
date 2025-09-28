@@ -75,7 +75,6 @@ function ProductList({ cart, setCart }) {
     return uniqueCategories.sort();
   }, [products]);
 
-  // Filter and sort products
   useEffect(() => {
     let filtered = products;
 
