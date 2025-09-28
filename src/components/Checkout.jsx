@@ -23,9 +23,17 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { FaCreditCard, FaShoppingBag, FaChartPie } from "react-icons/fa";
-
+import { generateBill } from "./generateBill";
 // Improved color palette with better accessibility
-const COLORS = ["#3182CE", "#38A169", "#D69E2E", "#E53E3E", "#805AD5", "#DD6B20", "#319795"];
+const COLORS = [
+  "#3182CE",
+  "#38A169",
+  "#D69E2E",
+  "#E53E3E",
+  "#805AD5",
+  "#DD6B20",
+  "#319795",
+];
 
 // Custom legend with improved styling
 const RenderLegend = ({ payload }) => (
@@ -44,8 +52,14 @@ const RenderLegend = ({ payload }) => (
   </VStack>
 );
 
-
-const RenderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }) => {
+const RenderCustomizedLabel = ({
+  cx,
+  cy,
+  midAngle,
+  innerRadius,
+  outerRadius,
+  percent,
+}) => {
   const RADIAN = Math.PI / 180;
   const radius = innerRadius + (outerRadius - innerRadius) * 0.3;
   const x = cx + radius * Math.cos(-midAngle * RADIAN);
@@ -55,7 +69,7 @@ const RenderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, per
     <text
       x={x}
       y={y}
-      fill="black"   // changed to black
+      fill="black" // changed to black
       textAnchor="middle"
       dominantBaseline="central"
       fontSize="11"
@@ -66,7 +80,6 @@ const RenderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, per
   );
 };
 
-
 // Custom tooltip
 const CustomTooltip = ({ active, payload }) => {
   if (active && payload && payload.length) {
@@ -75,7 +88,8 @@ const CustomTooltip = ({ active, payload }) => {
         <Text fontWeight="bold">{payload[0].name}</Text>
         <Text color="blue.600">{payload[0].value} items</Text>
         <Text fontSize="sm" color="gray.600">
-          {((payload[0].value / payload[0].payload.total) * 100).toFixed(1)}% of order
+          {((payload[0].value / payload[0].payload.total) * 100).toFixed(1)}% of
+          order
         </Text>
       </Card>
     );
@@ -87,13 +101,12 @@ export default function Checkout({ cart }) {
   const chartSize = useBreakpointValue({ base: 250, md: 300 });
   const isMobile = useBreakpointValue({ base: true, md: false });
 
-
   const categoryData = Object.values(
     cart.reduce((acc, item) => {
-      acc[item.category] = acc[item.category] || { 
-        name: item.category, 
+      acc[item.category] = acc[item.category] || {
+        name: item.category,
         value: 0,
-        total: cart.reduce((sum, i) => sum + i.quantity, 0)
+        total: cart.reduce((sum, i) => sum + i.quantity, 0),
       };
       acc[item.category].value += item.quantity;
       return acc;
@@ -116,12 +129,12 @@ export default function Checkout({ cart }) {
           </Heading>
         </HStack>
         <Text color="gray.600" fontSize="lg">
-          Review your {totalItems} item{totalItems !== 1 ? 's' : ''} before payment
+          Review your {totalItems} item{totalItems !== 1 ? "s" : ""} before
+          payment
         </Text>
       </VStack>
 
       <Grid templateColumns={{ base: "1fr", lg: "2fr 1fr" }} gap={6}>
-    
         <GridItem>
           <Card variant="elevated" mb={6}>
             <CardBody>
@@ -167,7 +180,6 @@ export default function Checkout({ cart }) {
           </Card>
         </GridItem>
 
-      
         <GridItem>
           <VStack spacing={6}>
             {/* Chart Card */}
@@ -178,7 +190,7 @@ export default function Checkout({ cart }) {
                     <FaChartPie />
                     <Text fontWeight="semibold">Category Breakdown</Text>
                   </HStack>
-                  
+
                   <Box w="full" h={chartSize}>
                     <ResponsiveContainer>
                       <PieChart>
@@ -194,7 +206,10 @@ export default function Checkout({ cart }) {
                           label={RenderCustomizedLabel}
                         >
                           {categoryData.map((_, index) => (
-                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                            <Cell
+                              key={`cell-${index}`}
+                              fill={COLORS[index % COLORS.length]}
+                            />
                           ))}
                         </Pie>
                         <Tooltip content={<CustomTooltip />} />
@@ -224,24 +239,30 @@ export default function Checkout({ cart }) {
                       <Text>${(total * 0.08).toFixed(2)}</Text>
                     </HStack>
                     <Divider />
-                    <HStack justify="space-between" w="full" fontSize="lg" fontWeight="bold">
+                    <HStack
+                      justify="space-between"
+                      w="full"
+                      fontSize="lg"
+                      fontWeight="bold"
+                    >
                       <Text>Total</Text>
                       <Text color="blue.600">${(total * 1.08).toFixed(2)}</Text>
                     </HStack>
                   </VStack>
-
-                  <Button 
-                    colorScheme="blue" 
-                    size="lg" 
-                    w="full" 
+                  <Button
+                    colorScheme="blue"
+                    size="lg"
+                    w="full"
                     leftIcon={<FaCreditCard />}
                     mt={2}
+                    onClick={() => generateBill(cart, total, totalItems)} // call here
                   >
                     Pay ${(total * 1.08).toFixed(2)}
                   </Button>
-                  
+
                   <Text fontSize="xs" color="gray.500" textAlign="center">
-                    By completing your purchase you agree to our terms of service
+                    By completing your purchase you agree to our terms of
+                    service
                   </Text>
                 </VStack>
               </CardBody>
