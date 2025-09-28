@@ -1,102 +1,304 @@
 import jsPDF from "jspdf";
 
-// 🎲 Random customer info generator
-const randomNames = ["Alice Tan", "John Lim", "Siti Nurhaliza", "Rajesh Kumar", "Mei Ling", "Daniel Wong", "Fatimah Ali", "Michael Lee"];
-const randomEmails = ["gmail.com", "yahoo.com", "hotmail.com", "outlook.com", "example.com"];
-const randomStreets = ["Jalan Ampang", "Bukit Bintang", "Petaling Street", "Jalan Tun Razak", "Brickfields", "Jalan Bukit Jalil"];
-const randomCities = ["Kuala Lumpur", "Penang", "Johor Bahru", "Kuching", "Kota Kinabalu", "Ipoh"];
-
-function getRandomElement(arr) {
-  return arr[Math.floor(Math.random() * arr.length)];
-}
-
-export const defaultCustomerInfo = {
-  name: getRandomElement(randomNames),
-  email: `${getRandomElement(randomNames).toLowerCase().replace(/\s/g, "")}@${getRandomElement(randomEmails)}`,
-  address: `${Math.floor(Math.random() * 200 + 1)} ${getRandomElement(randomStreets)}, ${getRandomElement(randomCities)}, Malaysia`
+// 🎲 Enhanced customer info generator
+const CUSTOMER_DATA = {
+  firstNames: ["Alice", "John", "Siti", "Rajesh", "Mei", "Daniel", "Fatimah", "Michael"],
+  lastNames: ["Tan", "Lim", "Nurhaliza", "Kumar", "Ling", "Wong", "Ali", "Lee"],
+  domains: ["gmail.com", "yahoo.com", "hotmail.com", "outlook.com"],
+  streets: ["Jalan Ampang", "Bukit Bintang", "Petaling Street", "Jalan Tun Razak"],
+  cities: ["Kuala Lumpur", "Penang", "Johor Bahru", "Kuching", "Kota Kinabalu", "Ipoh"],
+  postalCodes: ["50000", "10000", "80000", "93000", "88000"]
 };
 
-// 🖊️ Text drawing helper with alignment
-function drawText(doc, text, x, y, size = 12, color = [0, 0, 0], style = "normal", align = "left") {
-  doc.setFontSize(size);
-  doc.setFont("helvetica", style);
-  doc.setTextColor(...color);
-  doc.text(text, x, y, { align });
-}
-
-// 📄 Main bill generator
-export function generateBill(cart, total, totalItems, customerInfo = defaultCustomerInfo) {
-  const doc = new jsPDF();
-  const pageWidth = doc.internal.pageSize.width;
-  const pageHeight = doc.internal.pageSize.height;
-
-  // 🎨 Header background
-  doc.setFillColor(0, 102, 204); // Blue
-  doc.rect(0, 0, pageWidth, 50, "F");
-
-  // 🏬 Company name & tagline (centered)
-  drawText(doc, "SHOPPIFY", pageWidth / 2, 25, 24, [255, 255, 255], "bold", "center");
-  drawText(doc, "Premium Shopping Experience", pageWidth / 2, 35, 10, [255, 255, 255], "normal", "center");
-
-  // 🧾 Invoice info
-  drawText(doc, `Invoice #: ${Math.floor(Math.random() * 100000)}`, 14, 60, 12, [0, 0, 0], "bold");
-  drawText(doc, `Date: ${new Date().toLocaleDateString()}`, 14, 70, 12);
-
-  // 👤 Customer info
-  drawText(doc, "Bill To:", 14, 85, 12, [0, 0, 0], "bold");
-  drawText(doc, customerInfo.name, 14, 95);
-  drawText(doc, customerInfo.email, 14, 102);
-  drawText(doc, customerInfo.address, 14, 109);
-
-  // 🪟 Table headers
-  let y = 130;
-  doc.setDrawColor(0);
-  doc.setLineWidth(0.5);
-  doc.line(14, y - 6, pageWidth - 14, y - 6); // top line
-
-  drawText(doc, "Item", 14, y, 12, [0, 0, 0], "bold");
-  drawText(doc, "Qty", pageWidth / 2 - 20, y, 12, [0, 0, 0], "bold");
-  drawText(doc, "Price", pageWidth / 2 + 10, y, 12, [0, 0, 0], "bold");
-  drawText(doc, "Category", pageWidth - 70, y, 12, [0, 0, 0], "bold");
-  drawText(doc, "Total", pageWidth - 30, y, 12, [0, 0, 0], "bold");
-
-  doc.line(14, y + 3, pageWidth - 14, y + 3); // underline headers
-
-  // 🛍️ Items
-  cart.forEach((item, i) => {
-    y += 12;
-    drawText(doc, item.title, 14, y, 11);
-    drawText(doc, String(item.quantity), pageWidth / 2 - 20, y, 11, [0, 0, 0], "normal", "center");
-    drawText(doc, `$${item.price.toFixed(2)}`, pageWidth / 2 + 10, y, 11, [0, 0, 0], "normal", "center");
-    drawText(doc, item.category, pageWidth - 70, y, 11);
-    drawText(doc, `$${(item.price * item.quantity).toFixed(2)}`, pageWidth - 30, y, 11, [0, 0, 0], "normal", "right");
-  });
-
-  // ➕ Totals
-  y += 20;
-  drawText(doc, `Subtotal (${totalItems} items):`, pageWidth - 80, y, 12, [0, 0, 0], "bold", "right");
-  drawText(doc, `$${total.toFixed(2)}`, pageWidth - 14, y, 12, [0, 0, 0], "bold", "right");
-
-  y += 10;
-  drawText(doc, "Tax (8%):", pageWidth - 80, y, 12, [0, 0, 0], "bold", "right");
-  drawText(doc, `$${(total * 0.08).toFixed(2)}`, pageWidth - 14, y, 12, [0, 0, 0], "bold", "right");
-
-  y += 12;
-  drawText(doc, "Total:", pageWidth - 80, y, 14, [0, 128, 0], "bold", "right");
-  drawText(doc, `$${(total * 1.08).toFixed(2)}`, pageWidth - 14, y, 14, [0, 128, 0], "bold", "right");
-
-  // 📌 Footer
-  doc.setFontSize(10);
-  drawText(doc, "Thank you for shopping with Shoppify!", pageWidth / 2, pageHeight - 20, 10, [100, 100, 100], "normal", "center");
-  drawText(doc, "This is a computer-generated invoice.", pageWidth / 2, pageHeight - 14, 8, [150, 150, 150], "italic", "center");
-
-  // 📑 Page number
-  const pageCount = doc.internal.getNumberOfPages();
-  for (let i = 1; i <= pageCount; i++) {
-    doc.setPage(i);
-    drawText(doc, `Page ${i} of ${pageCount}`, pageWidth - 14, pageHeight - 10, 10, [100, 100, 100], "normal", "right");
+class PDFGenerator {
+  constructor() {
+    this.doc = new jsPDF();
+    this.pageWidth = this.doc.internal.pageSize.width;
+    this.pageHeight = this.doc.internal.pageSize.height;
+    this.currentY = 0;
+    this.margin = 20;
   }
 
-  // 💾 Save PDF
-  doc.save(`invoice_${Date.now()}.pdf`);
+  // 🎯 Text drawing with better positioning
+  drawText(text, x, y, options = {}) {
+    const {
+      size = 12,
+      color = [0, 0, 0],
+      style = "normal",
+      align = "left",
+      maxWidth = null
+    } = options;
+
+    this.doc.setFontSize(size);
+    this.doc.setFont("helvetica", style);
+    this.doc.setTextColor(...color);
+    
+    if (maxWidth) {
+      const lines = this.doc.splitTextToSize(text, maxWidth);
+      this.doc.text(lines, x, y, { align });
+      return lines.length;
+    } else {
+      this.doc.text(text, x, y, { align });
+      return 1;
+    }
+  }
+
+  // 📊 Draw table with better formatting
+  drawTable(headers, data, startY, columnWidths) {
+    const rowHeight = 12;
+    const headerHeight = 15;
+    let y = startY;
+
+    // Draw table headers
+    this.doc.setFillColor(240, 240, 240);
+    this.doc.rect(this.margin, y, this.pageWidth - (2 * this.margin), headerHeight, "F");
+    
+    let x = this.margin;
+    headers.forEach((header, index) => {
+      this.drawText(header, x + 2, y + 10, { 
+        style: "bold", 
+        size: 11,
+        align: index === headers.length - 1 ? "right" : "left"
+      });
+      x += columnWidths[index];
+    });
+
+    y += headerHeight;
+
+    // Draw table rows
+    data.forEach((row, rowIndex) => {
+      if (y > this.pageHeight - 40) {
+        this.addPage();
+        y = this.margin + 40;
+      }
+
+      x = this.margin;
+      row.forEach((cell, cellIndex) => {
+        const align = cellIndex === row.length - 1 ? "right" : "left";
+        this.drawText(cell, x + 2, y + 8, { size: 10, align });
+        x += columnWidths[cellIndex];
+      });
+
+      // Add subtle row separator
+      if (rowIndex < data.length - 1) {
+        this.doc.setDrawColor(200, 200, 200);
+        this.doc.line(this.margin, y + 12, this.pageWidth - this.margin, y + 12);
+      }
+
+      y += rowHeight;
+    });
+
+    return y;
+  }
+
+  addPage() {
+    this.doc.addPage();
+    this.currentY = this.margin;
+  }
+
+  // 🎨 Create modern header
+  createHeader() {
+    // Gradient background (simulated)
+    this.doc.setFillColor(41, 128, 185);
+    this.doc.rect(0, 0, this.pageWidth, 80, "F");
+
+    // Company logo and name
+    this.drawText("SHOPPIFY", this.pageWidth / 2, 35, {
+      size: 24,
+      color: [255, 255, 255],
+      style: "bold",
+      align: "center"
+    });
+
+    this.drawText("Premium Shopping Experience", this.pageWidth / 2, 50, {
+      size: 12,
+      color: [255, 255, 255],
+      align: "center"
+    });
+
+    this.currentY = 90;
+  }
+
+  // 👤 Customer information section
+  createCustomerSection(customerInfo) {
+    this.drawText("INVOICE", this.margin, this.currentY, { size: 18, style: "bold" });
+    this.currentY += 25;
+
+    // Invoice details
+    const invoiceData = [
+      [`Invoice #:`, `INV-${Date.now().toString().slice(-6)}`],
+      [`Date:`, new Date().toLocaleDateString('en-MY')],
+      [`Due Date:`, new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toLocaleDateString('en-MY')]
+    ];
+
+    let x = this.margin;
+    invoiceData.forEach(([label, value]) => {
+      this.drawText(label, x, this.currentY, { size: 10, color: [100, 100, 100] });
+      this.drawText(value, x + 40, this.currentY, { size: 10, style: "bold" });
+      this.currentY += 8;
+    });
+
+    this.currentY += 15;
+
+    // Customer info
+    const customerY = this.currentY;
+    this.drawText("BILL TO:", this.margin, this.currentY, { style: "bold" });
+    this.currentY += 8;
+    this.drawText(customerInfo.name, this.margin, this.currentY, { style: "bold" });
+    this.currentY += 6;
+    this.drawText(customerInfo.email, this.margin, this.currentY, { size: 10 });
+    this.currentY += 6;
+    
+    const addressLines = this.doc.splitTextToSize(customerInfo.address, 120);
+    addressLines.forEach(line => {
+      this.drawText(line, this.margin, this.currentY, { size: 10 });
+      this.currentY += 6;
+    });
+
+    this.currentY = Math.max(this.currentY, customerY + 40);
+  }
+
+  // 📋 Items table
+  createItemsTable(cart) {
+    const headers = ["Description", "Qty", "Unit Price", "Amount"];
+    const columnWidths = [100, 30, 40, 40];
+    
+    const tableData = cart.map(item => [
+      item.title.length > 40 ? item.title.substring(0, 37) + "..." : item.title,
+      item.quantity.toString(),
+      `$${item.price.toFixed(2)}`,
+      `$${(item.price * item.quantity).toFixed(2)}`
+    ]);
+
+    this.currentY = this.drawTable(headers, tableData, this.currentY + 10, columnWidths);
+  }
+
+  // 💰 Totals section
+  createTotalsSection(total, totalItems) {
+    const subtotal = total;
+    const taxRate = 0.08;
+    const tax = subtotal * taxRate;
+    const grandTotal = subtotal + tax;
+
+    const totals = [
+      { label: `Subtotal (${totalItems} items):`, value: subtotal },
+      { label: "Tax (8%):", value: tax },
+      { label: "Grand Total:", value: grandTotal, highlight: true }
+    ];
+
+    const startX = this.pageWidth - this.margin - 100;
+    let y = this.currentY + 20;
+
+    totals.forEach(({ label, value, highlight }) => {
+      this.drawText(label, startX, y, {
+        align: "right",
+        style: highlight ? "bold" : "normal",
+        color: highlight ? [0, 128, 0] : [0, 0, 0]
+      });
+
+      this.drawText(`$${value.toFixed(2)}`, this.pageWidth - this.margin, y, {
+        align: "right",
+        style: highlight ? "bold" : "normal",
+        size: highlight ? 14 : 12,
+        color: highlight ? [0, 128, 0] : [0, 0, 0]
+      });
+
+      y += highlight ? 12 : 10;
+    });
+
+    this.currentY = y;
+  }
+
+  // 📝 Footer section
+  createFooter() {
+    const footerY = this.pageHeight - 30;
+    
+    this.doc.setDrawColor(200, 200, 200);
+    this.doc.line(this.margin, footerY - 10, this.pageWidth - this.margin, footerY - 10);
+
+    this.drawText("Thank you for your business!", this.pageWidth / 2, footerY, {
+      align: "center",
+      color: [100, 100, 100]
+    });
+
+    this.drawText("This is a computer-generated invoice.", this.pageWidth / 2, footerY + 8, {
+      size: 8,
+      align: "center",
+      color: [150, 150, 150],
+      style: "italic"
+    });
+
+    // Page numbers
+    const pageCount = this.doc.internal.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      this.doc.setPage(i);
+      this.drawText(`Page ${i} of ${pageCount}`, this.pageWidth - this.margin, this.pageHeight - 10, {
+        size: 8,
+        align: "right",
+        color: [150, 150, 150]
+      });
+    }
+  }
+}
+
+// 🎲 Improved customer info generator
+export function generateCustomerInfo() {
+  const firstName = CUSTOMER_DATA.firstNames[Math.floor(Math.random() * CUSTOMER_DATA.firstNames.length)];
+  const lastName = CUSTOMER_DATA.lastNames[Math.floor(Math.random() * CUSTOMER_DATA.lastNames.length)];
+  
+  return {
+    name: `${firstName} ${lastName}`,
+    email: `${firstName.toLowerCase()}.${lastName.toLowerCase()}@${CUSTOMER_DATA.domains[Math.floor(Math.random() * CUSTOMER_DATA.domains.length)]}`,
+    address: `${Math.floor(Math.random() * 200 + 1)} ${CUSTOMER_DATA.streets[Math.floor(Math.random() * CUSTOMER_DATA.streets.length)]}, ${CUSTOMER_DATA.cities[Math.floor(Math.random() * CUSTOMER_DATA.cities.length)]}, ${CUSTOMER_DATA.postalCodes[Math.floor(Math.random() * CUSTOMER_DATA.postalCodes.length)]}, Malaysia`
+  };
+}
+
+export const defaultCustomerInfo = generateCustomerInfo();
+
+// 📄 Main bill generator with error handling
+export function generateBill(cart, total, totalItems, customerInfo = defaultCustomerInfo) {
+  try {
+    // Input validation
+    if (!cart || !Array.isArray(cart) || cart.length === 0) {
+      throw new Error("Cart must be a non-empty array");
+    }
+
+    if (typeof total !== "number" || total < 0) {
+      throw new Error("Total must be a positive number");
+    }
+
+    if (typeof totalItems !== "number" || totalItems < 0) {
+      throw new Error("Total items must be a positive number");
+    }
+
+    const pdf = new PDFGenerator();
+    
+    // Build PDF sections
+    pdf.createHeader();
+    pdf.createCustomerSection(customerInfo);
+    pdf.createItemsTable(cart);
+    pdf.createTotalsSection(total, totalItems);
+    pdf.createFooter();
+
+    // Generate filename with timestamp
+    const timestamp = new Date().toISOString().slice(0, 19).replace(/[:]/g, '-');
+    const filename = `invoice_${timestamp}.pdf`;
+
+    // Save PDF
+    pdf.doc.save(filename);
+    
+    return filename;
+    
+  } catch (error) {
+    console.error("Error generating PDF:", error);
+    throw new Error(`Failed to generate invoice: ${error.message}`);
+  }
+}
+
+// 💡 Utility function to format currency
+export function formatCurrency(amount) {
+  return new Intl.NumberFormat('en-MY', {
+    style: 'currency',
+    currency: 'MYR'
+  }).format(amount);
 }
